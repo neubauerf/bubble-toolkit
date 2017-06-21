@@ -509,7 +509,6 @@ if [ ${cloudstack_deploy_mode} -eq 0 ]; then
 fi
 deploy_cosmic_db ${cs1ip} ${cs1user} ${cs1pass}
 
-say "Installing Cosmic SystemVM templates"
 if [[ "${hypervisor}" == "kvm" ]]; then
   systemtemplate="/data/templates/cosmic-systemvm.qcow2"
   imagetype="qcow2"
@@ -571,9 +570,9 @@ for i in 1 2 3 4 5 6 7 8 9; do
           say "Installing CloudStack KVM Agent on host ${hvip} is not yet implemented!"
        fi
     elif [[ "${hypervisor}" == "xenserver" ]]; then
+      wait_for_port ${hvip} 22 tcp
       ${ssh_base} ${hvuser}@${hvip} sed -i "s/HOSTNAME=.*/HOSTNAME=${hvip}/g" /etc/sysconfig/network
       say "Creating .ssh folder for root"
-      wait_for_port ${hvip} 22 tcp
       ${ssh_base} ${hvuser}@${hvip} "mkdir -p /root/.ssh"
 
       ((host_count++)) || true
