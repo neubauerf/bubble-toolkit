@@ -117,6 +117,8 @@ do
         ;;
   x)    skip_deploy_dc=1
         ;;
+  *)    usage
+        exit 1
   esac
 done
 
