@@ -21,19 +21,24 @@ function update_management_server_in_marvin_config {
 function run_marvin_tests {
   config_file=$1
   tests="$2"
+  halt_on_failure="$3"
 
   nose_tests_report_file=nosetests.xml
 
   cd cosmic-core/test/integration
-  nosetests --with-xunit --xunit-file=../../../${nose_tests_report_file} --with-marvin --marvin-config=../../../${config_file} -s -a tags=advanced ${tests}
+  nosetests --with-xunit --xunit-file=../../../${nose_tests_report_file} --with-marvin --marvin-config=../../../${config_file} ${halt_on_failure} -s -a tags=advanced ${tests}
   cd -
 }
 
+halt_on_failure=
+
 # Options
-while getopts ':m:' OPTION
+while getopts ':m:f' OPTION
 do
   case $OPTION in
   m)    marvin_config="$OPTARG"
+        ;;
+  f)    halt_on_failure="--halt-on-failure"
         ;;
   esac
 done
@@ -43,6 +48,7 @@ marvin_tests=${@:$OPTIND}
 say "Received arguments:"
 say "marvin_config = ${marvin_config}"
 say "marvin_tests = \"${marvin_tests}\""
+say "halt_on_failure = ${halt_on_failure}"
 
 # Check if a marvin dc file was specified
 if [ -z ${marvin_config} ]; then
@@ -76,4 +82,4 @@ say "Updating Marvin Config with Management Server IP"
 update_management_server_in_marvin_config ${marvin_config_copy} ${cs1ip}
 
 say "Running tests"
-run_marvin_tests ${marvin_config_copy} "${marvin_tests}"
+run_marvin_tests ${marvin_config_copy} "${marvin_tests}" ${halt_on_failure}
